@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <map>
 #include "String_Sequence.h"
-
+//легаси от 3 проекта
 
 template <typename Key, typename Value>
 class IDictionary {
@@ -17,19 +17,18 @@ private:
     
 
 public:
-    // Методы Sequence
     std::pair<Key, Value>& GetFirst()   {
-        if (items.empty()) throw std::out_of_range("Dictionary is empty");
+        if (items.empty()) throw std::out_of_range("Пусто");
         return items.front();
     }
 
     std::pair<Key, Value>& GetLast()   {
-        if (items.empty()) throw std::out_of_range("Dictionary is empty");
+        if (items.empty()) throw std::out_of_range("Пусто");
         return items.back();
     }
 
     std::pair<Key, Value>& Get(int index) const   {
-        if (index < 0 || index >= items.size()) throw std::out_of_range("Index out of range");
+        if (index < 0 || index >= items.size()) throw std::out_of_range("Ошибка");
         return const_cast<std::pair<Key, Value>&>(items[index]);
     }
 
@@ -38,7 +37,7 @@ public:
     }
     
     const std::pair<Key, Value>& operator[](int index) const {
-        if (index < 0 || index >= items.size()) throw std::out_of_range("Index out of range");
+        if (index < 0 || index >= items.size()) throw std::out_of_range("Ошибка");
         return items[index];
         }
 
@@ -55,7 +54,7 @@ public:
     }
 
     void InsertAt(std::pair<Key, Value> item, int index)   {
-        if (index < 0 || index > items.size()) throw std::out_of_range("Index out of range");
+        if (index < 0 || index > items.size()) throw std::out_of_range("Ошибка");
         items.insert(items.begin() + index, item);
     }
 
@@ -75,7 +74,7 @@ public:
                 return item.second;
             }
         }
-        throw std::runtime_error("Key not found");
+        throw std::runtime_error("Ключ не найден");
     }
 
     bool ContainsKey(const Key& key) const {
@@ -96,7 +95,6 @@ public:
     auto begin() { return data.begin(); }
     auto end() { return data.end(); }
 
-    // Или для константного доступа
     auto begin() const { return data.begin(); }
     auto end() const { return data.end(); }
 };
