@@ -1,12 +1,14 @@
 #include <iostream>
 #include <fstream>
 #include "tests.h"
+#include "extra_tests_1000.h"
 
 int main() {
     std::cout << "Выберите опцию:\n";
     std::cout << "1. Топологическая сортировка\n";
     std::cout << "2. Алгоритм Дейкстры\n";
     std::cout << "3. Запустить автотесты\n";
+    std::cout << "4. Сравнение эффективности DFS и Dikstra\n";
     std::cout << "Иначе. Выход\n";
 
     int choice;
@@ -89,6 +91,9 @@ int main() {
     else if (choice == 3){
         TestTopologicalSort(output);
         TestDijkstra(output);   
+    }
+    else if (choice == 4){
+        TestDFSvsDijkstra();
     }
     else {
         std::cout << "Выход из программы.\n";

@@ -1,36 +1,35 @@
-#ifndef LAB4_GRAPH_PARTS
-#define LAB4_GRAPH_PARTS
+#pragma once
 #include <list>
 
-
+//в дугах косвенное обраение посредством имён. Можно было бы, если бы в графе вершины были в словаре. Избавиться от косвенной адресации, если получится. Впиндюрить словарик в граф
 template<typename T>
 class Edge{
 private:
-    T VertexName1;
-    T VertexName2;
+    T a;
+    T b;
     int weight;
 
 public:
-    Edge(T vertex1, T vertex2, int weight) : VertexName1(vertex1), VertexName2(vertex2), weight(weight) {}
+    Edge(T vertex1, T vertex2, int weight) : a(vertex1), b(vertex2), weight(weight) {}
 
-    Edge(Edge const &edge) : VertexName1(edge.VertexName1), VertexName2(edge.VertexName2), weight(edge.weight) {}
+    Edge(Edge const &edge) : a(edge.a), b(edge.b), weight(edge.weight) {}
     
     int GetWeight() const{
         return weight;
     }
     
     T GetFirst() const{
-        return VertexName1;
+        return a;
     }
     
     T GetLast() const{
-        return VertexName2;
+        return b;
     }
     
     void Reverse(){
-        T tmp = VertexName1;
-        VertexName1 = VertexName2;
-        VertexName2 = tmp;
+        T tmp = a;
+        a = b;
+        b = tmp;
     }
 };
 
@@ -39,6 +38,7 @@ class Vertex {
 private:
     T name;
     std::list<Edge<T>> edges;
+
 public:
     Vertex() : name(), edges() {};
     
@@ -59,6 +59,3 @@ public:
 };
 
 
-
-
-#endif //LAB4_GRAPH_PARTS

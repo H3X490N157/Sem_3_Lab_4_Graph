@@ -1,9 +1,11 @@
+#pragma once
 #include <SFML/Graphics.hpp>
 #include "Graph.h"
 #include <cmath>
 #include <map>
 #include <stdexcept>
 #include <iostream>
+
 
 template<typename T>
 void DrawGraph(const Graph<T>& graph) {
@@ -83,5 +85,71 @@ void DrawGraph(const Graph<T>& graph) {
         }
 
         window.display();
+    }
+}
+
+template<typename T>
+void Draw_Graph_1000(const Graph<T>& graph) {
+    const int windowWidth = 800;
+    const int windowHeight = 600;
+    const int pointSize = 2; 
+    const int gridPadding = 10; 
+
+    sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Граф с 1000 вершинами");
+    window.setFramerateLimit(60);
+
+    int graphSize = graph.GetSize();
+
+    int gridCols = static_cast<int>(std::sqrt(graphSize)); 
+    int gridRows = (graphSize + gridCols - 1) / gridCols;
+
+    float xStep = static_cast<float>(windowWidth - 2 * gridPadding) / gridCols;
+    float yStep = static_cast<float>(windowHeight - 2 * gridPadding) / gridRows;
+
+    std::vector<sf::Vector2f> positions;
+    for (int i = 0; i < gridRows; ++i) {
+        for (int j = 0; j < gridCols; ++j) {
+            if (positions.size() >= graphSize) break;
+            float x = gridPadding + j * xStep;
+            float y = gridPadding + i * yStep;
+            positions.emplace_back(x, y);
+        }
+    }
+
+    // Главный цикл отрисовки
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();  // Закрытие окна по нажатию на крестик
+            }
+        }
+
+        window.clear(sf::Color::White);  // Очищаем окно
+
+        // Рисуем рёбра
+        for (int i = 0; i < graphSize; ++i) {
+            const Vertex<T>& vertex = graph.Get(i);  // Получаем вершину по индексу
+            
+            // Рисуем рёбра для каждой вершины
+            for (const auto& edge : vertex.GetEdges()) {  // Предполагается, что у вершины есть метод GetEdges()
+                int dest = edge.GetLast();  // Получаем индекс конечной вершины рёбра
+                sf::Vertex line[] = {
+                    sf::Vertex(positions[i], sf::Color::Black),  // Начало ребра
+                    sf::Vertex(positions[dest], sf::Color::Black)  // Конец ребра
+                };
+                window.draw(line, 2, sf::Lines);  // Рисуем ребро
+            }
+        }
+
+        // Рисуем вершины
+        for (const auto& position : positions) {
+            sf::CircleShape point(pointSize);
+            point.setPosition(position.x - pointSize, position.y - pointSize);
+            point.setFillColor(sf::Color::Black);
+            window.draw(point);
+        }
+
+        window.display();  // Отображаем изменения на экране
     }
 }

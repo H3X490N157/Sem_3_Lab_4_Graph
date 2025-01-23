@@ -15,11 +15,16 @@ class DynamicArray
         typedef DynamicArray_iterator<T> iterator;
 
         DynamicArray();
-    DynamicArray(const size_t capacity);
-    DynamicArray(const size_t size, T default_value);
-    DynamicArray(const std::initializer_list<T> list);
-    DynamicArray(const DynamicArray<T> &input_vector);
-    DynamicArray(DynamicArray<T> &&input_vector);
+        
+        DynamicArray(const size_t capacity);
+        
+        DynamicArray(const size_t size, T default_value);
+        
+        DynamicArray(const std::initializer_list<T> list);
+        
+        DynamicArray(const DynamicArray<T> &input_vector);
+        
+        DynamicArray(DynamicArray<T> &&input_vector);
 
         ~DynamicArray() noexcept;
 

@@ -9,6 +9,7 @@
 #include <map>
 #include "String_Sequence.h"
 //легаси от 3 проекта
+///пофиксить со словарём, больше своих структур и пример на 1К вершин
 
 template <typename Key, typename Value>
 class IDictionary {
