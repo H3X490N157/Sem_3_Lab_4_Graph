@@ -74,7 +74,7 @@ public:
                 return item.second;
             }
         }
-        throw std::runtime_error("Ключ не найден");
+        throw std::runtime_error("Ключ не верный");
     }
 
     bool ContainsKey(const Key& key) const {

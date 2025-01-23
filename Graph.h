@@ -1,5 +1,3 @@
-#ifndef LAB4_GRAPH
-#define LAB4_GRAPH
 #include "DynamicArray.h"
 #include <list>
 #include <stack>
@@ -435,5 +433,3 @@ private:
     }
 };
 
-
-#endif //LAB4_GRAPH
