@@ -6,13 +6,13 @@
 template <typename T>
 class DynamicArray
 {
-    protected:
-        T *data = nullptr;
-        size_t size = 0;
-        size_t capacity = 0;
+private:
+    T *data = nullptr;
+    size_t size = 0;
+    size_t capacity = 0;
 
-    public:
-        typedef DynamicArray_iterator<T> iterator;
+public:
+    typedef DynamicArray_iterator<T> iterator;
 
     DynamicArray();
     DynamicArray(const size_t capacity);
@@ -21,33 +21,31 @@ class DynamicArray
     DynamicArray(const DynamicArray<T> &input_vector);
     DynamicArray(DynamicArray<T> &&input_vector);
 
-        ~DynamicArray() noexcept;
+    ~DynamicArray() noexcept;
 
-        void push_back(const T &value);
-        void push_front(const T &value);
-        void pop_back();
-        void pop_front();
+    void push_back(const T &value);
+    void push_front(const T &value);
+    void pop_back();
+    void pop_front();
 
-        iterator insert(iterator position, const T &value);
-        iterator insert(iterator position, iterator first, iterator last);
-        iterator erase(iterator position);
-        iterator erase(iterator first, iterator last);
+    iterator insert(iterator position, const T &value);
+    iterator insert(iterator position, iterator first, iterator last);
+    iterator erase(iterator position);
+    iterator erase(iterator first, iterator last);
 
-        void resize(const size_t new_size);
-        bool is_empty() const noexcept;
+    void resize(const size_t new_size);
+    bool is_empty() const noexcept;
 
-        size_t get_size() const noexcept;
+    size_t get_size() const noexcept;
 
-        T &operator[](const size_t index);
-        T operator[](const size_t index) const;
+    T &operator[](const size_t index);
+    T operator[](const size_t index) const;
     DynamicArray &operator=(const DynamicArray<T> &other);
     DynamicArray &operator=(DynamicArray<T> &&other);
-
-        iterator begin() noexcept;
-        iterator end() noexcept;
-
-        iterator cbegin() const noexcept;
-        iterator cend() const noexcept;
+    iterator begin() noexcept;
+    iterator end() noexcept;
+    iterator cbegin() const noexcept;
+    iterator cend() const noexcept;
 };
 
 template <typename T> DynamicArray<T>::DynamicArray()

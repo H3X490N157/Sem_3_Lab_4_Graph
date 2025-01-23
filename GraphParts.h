@@ -34,10 +34,8 @@ public:
     }
 };
 
-
 template<typename T>
 class Vertex {
-
 private:
     T name;
     std::list<Edge<T>> edges;
@@ -59,6 +57,8 @@ public:
     }
 
 };
+
+
 
 
 #endif //LAB4_GRAPH_PARTS

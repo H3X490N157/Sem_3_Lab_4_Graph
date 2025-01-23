@@ -3,21 +3,20 @@
 #include <cmath>
 #include <map>
 #include <stdexcept>
+#include <iostream>
 
 template<typename T>
 void DrawGraph(const Graph<T>& graph) {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Graph Visualizer");
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Визуализатор");
     window.setFramerateLimit(60);
 
     std::map<T, sf::Vector2f> positions;
     float radius = 20.f;
     int graphSize = graph.GetSize();
 
-    // Генерация позиций вершин (пример: окружность)
     float angleStep = 2 * M_PI / graphSize;
     for (int i = 0; i < graphSize; ++i) {
-        // Для извлечения вершины по индексу, используем имя
-        T vertexName = graph.Get(i).GetName();  // Теперь используем метод Get
+        T vertexName = graph.Get(i).GetName(); 
         float angle = i * angleStep;
         float x = 400 + std::cos(angle) * 200;
         float y = 300 + std::sin(angle) * 200;
@@ -38,24 +37,35 @@ void DrawGraph(const Graph<T>& graph) {
 
         window.clear(sf::Color::White);
 
-        // Рисуем ребра
+        // Рисуем рёбра
         for (int i = 0; i < graphSize; ++i) {
             T vertexName = graph.Get(i).GetName();
             const auto edges = graph.Get(vertexName).GetEdges();
 
-            for (const auto edge : edges) {
+            for (const auto& edge : edges) {
                 T src = edge.GetFirst();
                 T dest = edge.GetLast();
+                int weight = edge.GetWeight(); 
 
                 sf::Vertex line[] = {
                     sf::Vertex(positions[src], sf::Color::Black),
                     sf::Vertex(positions[dest], sf::Color::Black)
                 };
                 window.draw(line, 2, sf::Lines);
+
+                sf::Vector2f midPoint = (positions[src] + positions[dest] + (positions[dest] / 7.0f)) / 2.0f;
+
+                sf::Text weightText;
+                weightText.setFont(font);
+                weightText.setString(std::to_string(weight)); 
+                weightText.setCharacterSize(14);
+                weightText.setFillColor(sf::Color::Black);
+                weightText.setPosition(midPoint.x - 10, midPoint.y - 10); 
+
+                window.draw(weightText);
             }
         }
 
-        // Рисуем вершины
         for (const auto& [name, position] : positions) {
             sf::CircleShape circle(radius);
             circle.setPosition(position.x - radius, position.y - radius);
