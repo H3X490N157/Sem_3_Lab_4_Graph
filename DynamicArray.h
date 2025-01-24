@@ -19,7 +19,7 @@ class DynamicArray{
         
         DynamicArray(const size_t size, T default_value);
         
-        DynamicArray(const std::initializer_list<T> list);
+        DynamicArray(int x);
         
         DynamicArray(const DynamicArray<T> &input_vector);
         
@@ -71,15 +71,15 @@ template <typename T> DynamicArray<T>::DynamicArray(const size_t size, T default
     std::fill(data, data + size, default_value);
 }
 
-template <typename T> DynamicArray<T>::DynamicArray(const std::initializer_list<T> list){
-    size = list.size();
-    data = new T[size];
-    capacity = size;
-    std::copy(list.begin(), list.end(), data);
-}
-
 template <typename T> DynamicArray<T>::DynamicArray(const DynamicArray<T> &input_vector){
     *this = input_vector;
+}
+
+template <typename T> DynamicArray<T>::DynamicArray(int x){
+    size = 1;
+    capacity = 2;
+    data = new T[1];
+    data[0] = x;
 }
 
 template <typename T> DynamicArray<T>::DynamicArray(DynamicArray<T> &&input_vector){

@@ -253,7 +253,7 @@ Path<T> Dijkstra(T startVertex, T endVertex) {
     }
 
     // Возвращаем массив с одной величиной — общей длиной пути (сумма весов рёбер)
-    return Path<T>(DynamicArray<int>{totalWeight}, path);
+    return Path<T>(DynamicArray<int>(totalWeight), path);
 }
 
 
