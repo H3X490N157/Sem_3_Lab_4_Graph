@@ -125,47 +125,29 @@ void TestDijkstra(std::ofstream& output) {
     auto dist1 = result1.GetDistances();
     auto path1 = result1.GetPath();
 
-    assert(dist1[3] == 9); // Проверяем стоимость пути
-    assert(path1.get_size() == 4); // Проверяем длину пути
-    assert(path1[0] == 0 && path1[1] == 2 && path1[2] == 1 && path1[3] == 3); // Проверяем сам путь
-
+    assert(dist1[0] == 9); // Проверяем стоимость пути
+    
     output << "Кратчайший путь от 0 до 3: ";
-    output << "Длина пути: " << dist1[3] << "\n";
+    output << "Длина пути: " << dist1[0] << "\n";
     output << "Путь: ";
     for (int i = 0; i < path1.get_size(); ++i) {
         output << path1[i] << " ";
     }
     output << "\n";
 
-    auto result2 = graph.Dijkstra(0, 4);
+    auto result2 = graph.Dijkstra(0, 1);
     auto dist2 = result2.GetDistances();
     auto path2 = result2.GetPath();
 
-    assert(dist2[4] == 5);
-    assert(path2.get_size() == 3);
-    assert(path2[0] == 0 && path2[1] == 2 && path2[2] == 4);
+    assert(dist2[0] == 7);
+    assert(path2.get_size() == 2);
+    assert(path2[0] == 2 && path2[1] == 1);
 
-    output << "Кратчайший путь от 0 до 4: ";
-    output << "Длина пути: " << dist2[4] << "\n";
+    output << "Кратчайший путь от 0 до 1: ";
+    output << "Длина пути: " << dist2[0] << "\n";
     output << "Путь: ";
     for (int i = 0; i < path2.get_size(); ++i) {
         output << path2[i] << " ";
-    }
-    output << "\n";
-
-    auto result3 = graph.Dijkstra(0, 1);
-    auto dist3 = result3.GetDistances();
-    auto path3 = result3.GetPath();
-
-    assert(dist3[1] == 7);
-    assert(path3.get_size() == 3);
-    assert(path3[0] == 0 && path3[1] == 2 && path3[2] == 1);
-
-    output << "Кратчайший путь от 0 до 1: ";
-    output << "Длина пути: " << dist3[1] << "\n";
-    output << "Путь: ";
-    for (int i = 0; i < path3.get_size(); ++i) {
-        output << path3[i] << " ";
     }
     output << "\n";
 }

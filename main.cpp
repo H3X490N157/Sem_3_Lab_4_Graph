@@ -74,13 +74,11 @@ int main() {
         int start, end;
         std::cin >> start >> end;
 
-        // Выполняем алгоритм Дейкстры
         auto result = graph.Dijkstra(start, end);
         auto dist = result.GetDistances();
         auto path = result.GetPath();
 
         output << "Алгоритм Дейкстры от вершины " << start << " до вершины " << end << ":\n";
-        output << "Длина пути: " << dist[end] << "\n";
         output << "Путь: ";
         for (int i = 0; i < path.get_size(); ++i) {
             output << path[i] << " ";

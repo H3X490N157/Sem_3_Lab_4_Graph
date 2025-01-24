@@ -37,14 +37,13 @@ template <typename T>
 class Vertex {
 private:
     T name;
-    LinkedList<Edge<T>> edges; // Используем ваш LinkedList вместо std::list
+    LinkedList<Edge<T>> edges; // LinkedList вместо std::list
 
 public:
     Vertex() : name(), edges() {}
 
     Vertex(T name) : name(name), edges() {}
 
-    // Получение ссылок на рёбра
     const LinkedList<Edge<T>>& GetEdges() const {
         return edges;
     }

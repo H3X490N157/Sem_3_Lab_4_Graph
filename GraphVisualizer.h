@@ -69,7 +69,7 @@ void DrawGraph(Graph<T>& graph) {
                 };
                 window.draw(line, 2, sf::Lines);
 
-                sf::Vector2f midPoint = (positions[src] + positions[dest]) / 2.0f;
+                sf::Vector2f midPoint = (positions[src] + positions[dest] - (positions[src] / 7.0f)) / 2.0f;
 
                 sf::Text weightText;
                 weightText.setFont(font);
@@ -82,7 +82,6 @@ void DrawGraph(Graph<T>& graph) {
             }
         }
 
-        // Рисуем вершины
         sf::CircleShape circle(radius);
         for (const auto& [name, position] : positions) {
             circle.setPosition(position.x - radius, position.y - radius);
@@ -133,22 +132,21 @@ void Draw_Graph_1000(Graph<T>& graph) {
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
-                window.close();  // Закрытие окна по нажатию на крестик
+                window.close();  
             }
         }
 
-        window.clear(sf::Color::White);  // Очищаем окно
+        window.clear(sf::Color::White);  
 
-        // Рисуем рёбра
         for (int i = 0; i < graphSize; ++i) {
-            const Vertex<T>& vertex = graph.Get(i);  // Получаем вершину по индексу
+            const Vertex<T>& vertex = graph.Get(i);
             
             // Рисуем рёбра для каждой вершины
-            for (const auto& edge : vertex.GetEdges()) {  // Предполагается, что у вершины есть метод GetEdges()
-                int dest = edge.GetLast();  // Получаем индекс конечной вершины рёбра
+            for (const auto& edge : vertex.GetEdges()) {  
+                int dest = edge.GetLast();  
                 sf::Vertex line[] = {
-                    sf::Vertex(positions[i], sf::Color::Black),  // Начало ребра
-                    sf::Vertex(positions[dest], sf::Color::Black)  // Конец ребра
+                    sf::Vertex(positions[i], sf::Color::Black), 
+                    sf::Vertex(positions[dest], sf::Color::Black)  
                 };
                 window.draw(line, 2, sf::Lines);  // Рисуем ребро
             }

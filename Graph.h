@@ -1,317 +1,348 @@
 #pragma once
-#include "DynamicArray.h"
+#include "IDictionary.h"
+#include "GraphParts.h"
 #include <stack>
 #include <queue>
 #include <fstream>
 #include <sstream>
-#include "GraphParts.h"
 #include <limits.h>
+#include <algorithm>
 #include "Path.h"
 
 template<typename T>
 class Graph {
 private:
-    DynamicArray<Vertex<T>> graph;
+    IDictionary<T, Vertex<T>> graph;
 
 public:
-    Graph() = default;
+   Graph() = default;
 
     void AddVertex(T vertexName) {
         if (SearchVertex(vertexName)) {
             return;
         }
         Vertex<T> vertex(vertexName);
-        graph.push_back(vertex);
+        graph.Add(vertexName, vertex);
     }
 
     bool SearchVertex(T vertexName) {
-        for (const auto& i : graph) {
-            if (i.GetName() == vertexName) {
-                return true;
-            }
-        }
-        return false;
+        return graph.ContainsKey(vertexName);
     }
 
     void AddEdge(T vertexName1, T vertexName2, int weight) {
         if (SearchEdgeArc(vertexName1, vertexName2)) {
             return;
         }
-
-        Edge newEdge(vertexName1, vertexName2, weight);
-        for (auto& i : graph) {
-            if (i.GetName() == vertexName1) {
-                i.AddEdgeV(newEdge);
-            }
+        if (!SearchVertex(vertexName1) || !SearchVertex(vertexName2)) {
+            throw std::runtime_error("One or both vertices not found");
         }
-
-        Edge reverseEdge(vertexName2, vertexName1, weight);
-        for (auto& i : graph) {
-            if (i.GetName() == vertexName2) {
-                i.AddEdgeV(reverseEdge);
-            }
-        }
+        graph.Get(vertexName1).AddEdgeV(Edge<T>(vertexName1, vertexName2, weight));
+        graph.Get(vertexName2).AddEdgeV(Edge<T>(vertexName2, vertexName1, weight));
     }
 
     void AddArc(T vertexName1, T vertexName2, int weight) {
         if (SearchEdgeArc(vertexName1, vertexName2)) {
             return;
         }
-        Edge newEdge(vertexName1, vertexName2, weight);
-        for (auto& i : graph) {
-            if (i.GetName() == vertexName1) {
-                i.AddEdgeV(newEdge);
-            }
+        if (!SearchVertex(vertexName1)) {
+            throw std::runtime_error("Vertex not found");
         }
+        graph.Get(vertexName1).AddEdgeV(Edge<T>(vertexName1, vertexName2, weight));
     }
 
     bool SearchEdgeArc(T vertexName1, T vertexName2) {
-        for (const auto& i : graph) {
-            for (const auto& it : i.GetEdges()) {
-                if (it.GetFirst() == vertexName1 && it.GetLast() == vertexName2) {
-                    return true;
-                }
-            }
+        if (!SearchVertex(vertexName1)) {
+            return false;
         }
-        return false;
-    }
-
-    void RemoveEdge(T vertexName1, T vertexName2) {
-        for (auto& j : graph) {
-            for (auto i = j.GetEdges().begin(); i != j.GetEdges().end();) {
-                if ((i->GetFirst() == vertexName1 && i->GetLast() == vertexName2) ||
-                    (i->GetFirst() == vertexName2 && i->GetLast() == vertexName1)) {
-                    i = j.GetEdges().erase(i);
-                } else {
-                    ++i;
-                }
-            }
-        }
-    }
-
-    void RemoveVertex(T vertexName) {
-        for (auto i = graph.begin(); i != graph.end();) {
-            if (i->GetName() == vertexName) {
-                i = graph.erase(i);
-                break;
-            } else {
-                ++i;
-            }
-        }
-
-        for (auto& i : graph) {
-            for (auto it = i.GetEdges().begin(); it != i.GetEdges().end();) {
-                if (it->GetFirst() == vertexName || it->GetLast() == vertexName) {
-                    it = i.GetEdges().erase(it);
-                } else {
-                    ++it;
-                }
-            }
-        }
-    }
-
-    int GetSize() const {
-        return static_cast<int>(graph.get_size());
-    }
-
-    void ChangeWeightArc(T vertexName1, T vertexName2, int weight) {
-        if (!SearchVertex(vertexName1) || !SearchVertex(vertexName2)) {
-            return;
-        }
-        for (auto& i : graph) {
-            for (auto& it : i.GetEdges()) {
-                if (it.GetFirst() == vertexName1 && it.GetLast() == vertexName2) {
-                    it.GetWeigth() = weight;
-                }
-            }
-        }
-    }
-
-    void ChangeWeightEdge(T vertexName1, T vertexName2, int weight) {
-        if (!SearchVertex(vertexName1) || !SearchVertex(vertexName2)) {
-            return;
-        }
-        for (auto& i : graph) {
-            for (auto& it : i.GetEdges()) {
-                if ((it.GetFirst() == vertexName1 && it.GetLast() == vertexName2) ||
-                    (it.GetFirst() == vertexName2 && it.GetLast() == vertexName1)) {
-                    it.GetWeight() = weight;
-                }
-            }
-        }
-    }
-
-    Path<T> Dijkstra(int startVertexIndex, int endVertexIndex) {
-        int numVertices = GetSize();
-        DynamicArray<int> dist(numVertices, INT_MAX);
-        DynamicArray<int> prev(numVertices, -1);
-        DynamicArray<bool> visited(numVertices, false);
-
-        dist[startVertexIndex] = 0;
-
-        for (int i = 0; i < numVertices; ++i) {
-            int u = -1;
-            for (int j = 0; j < numVertices; ++j) {
-                if (!visited[j] && (u == -1 || dist[j] < dist[u])) {
-                    u = j;
-                }
-            }
-
-            if (dist[u] == INT_MAX) {
-                break;
-            }
-
-            visited[u] = true;
-
-            for (const auto& edge : graph[u].GetEdges()) {
-                int vertEnd = edge.GetLast();
-                int weight = edge.GetWeight();
-
-                if (dist[vertEnd] > dist[u] + weight) {
-                    dist[vertEnd] = dist[u] + weight;
-                    prev[vertEnd] = u;
-                }
-            }
-        }
-
-        DynamicArray<T> path;
-        for (int at = endVertexIndex; at != -1; at = prev[at]) {
-            path.push_back(at);
-        }
-
-        std::reverse(path.begin(), path.end());
-        return Path<T>(dist, path);
-    }
-
-    Path<T> DFS(int startVertexIndex, int endVertexIndex) {
-        DynamicArray<T> path;
-        int totalDistance = 0;
-        if (!SearchVertex(startVertexIndex) || !SearchVertex(endVertexIndex)) {
-            return Path<T>(DynamicArray<int>{}, path);
-        }
-
-        DynamicArray<bool> visited(this->GetSize(), false);
-        std::stack<int> stack;
-        DynamicArray<int> parent(this->GetSize(), -1);
-
-        visited[startVertexIndex] = true;
-        stack.push(startVertexIndex);
-
-        while (!stack.empty()) {
-            int currentVertex = stack.top();
-            stack.pop();
-
-            if (currentVertex == endVertexIndex) {
-                int v = endVertexIndex;
-                while (v != -1) {
-                    path.push_back(v);
-                    if (parent[v] != -1) {
-                        for (const auto& edge : graph[parent[v]].GetEdges()) {
-                            if (edge.GetLast() == v) {
-                                totalDistance += edge.GetWeight();
-                                break;
-                            }
-                        }
-                    }
-                    v = parent[v];
-                }
-                std::reverse(path.begin(), path.end());
-                return Path<T>(DynamicArray<int>{totalDistance}, path);
-            }
-
-            for (const auto& edge : graph[currentVertex].GetEdges()) {
-                if (!visited[edge.GetLast()]) {
-                    stack.push(edge.GetLast());
-                    visited[edge.GetLast()] = true;
-                    parent[edge.GetLast()] = currentVertex;
-                }
-            }
-        }
-
-        return Path<T>(DynamicArray<int>{}, path);
-    }
-
-    void topologicalSort(DynamicArray<int>& topologicalSort) {
-        if (this->hasCycle()) {
-            return;
-        }
-        std::stack<int> Stack;
-        DynamicArray<bool> visited(this->GetSize(), false);
-
-        for (int i = 0; i < graph.get_size(); i++) {
-            if (!visited[i]) {
-                topologicalSortUtil(i, visited, Stack);
-            }
-        }
-
-        while (!Stack.empty()) {
-            topologicalSort.push_back(Stack.top());
-            Stack.pop();
-        }
-    }
-
-    bool hasCycle() {
-        int numVertices = (int)graph.get_size();
-        DynamicArray<bool> visited(numVertices, false);
-        DynamicArray<bool> recStack(numVertices, false);
-
-        for (int i = 0; i < numVertices; i++) {
-            if (!visited[i] && hasCycleUtil(i, visited, recStack)) {
+        for (const auto& edge : graph.Get(vertexName1).GetEdges()) {
+            if (edge.GetFirst() == vertexName1 && edge.GetLast() == vertexName2) {
                 return true;
             }
         }
         return false;
     }
 
-    Vertex<T>& Get(T name_) {
-        if (graph.get_size() == 0) {
-            throw std::runtime_error("Graph is empty");
+    void RemoveEdge(T vertexName1, T vertexName2) {
+        for (auto& keyValue : graph) {
+            auto& edges = keyValue.second.GetEdges();
+            edges.erase(std::remove_if(edges.begin(), edges.end(),
+                                       [vertexName1, vertexName2](const Edge<T>& edge) {
+                                           return (edge.GetFirst() == vertexName1 && edge.GetLast() == vertexName2) ||
+                                                  (edge.GetFirst() == vertexName2 && edge.GetLast() == vertexName1);
+                                       }),
+                        edges.end());
         }
-        for (int i = 0; i < graph.get_size(); i++) {
-            if (graph[i].GetName() == name_) {
-                return graph[i];
-            }
-        }
-        throw std::runtime_error("Vertex not found");
     }
 
-    const Vertex<T> Get(T name_) const {
-        if (graph.get_size() == 0) {
-            throw std::runtime_error("Graph is empty");
+    void RemoveVertex(T vertexName) {
+        if (!SearchVertex(vertexName)) {
+            return;
         }
-        for (int i = 0; i < graph.get_size(); i++) {
-            if (graph[i].GetName() == name_) {
-                return graph[i];
+        graph.Remove(vertexName);
+        for (auto& keyValue : graph) {
+            auto& edges = keyValue.second.GetEdges();
+            edges.erase(std::remove_if(edges.begin(), edges.end(),
+                                       [vertexName](const Edge<T>& edge) {
+                                           return edge.GetFirst() == vertexName || edge.GetLast() == vertexName;
+                                       }),
+                        edges.end());
+        }
+    }
+
+    int GetSize() const {
+        return graph.GetLength();
+    }
+
+    void ChangeWeightArc(T vertexName1, T vertexName2, int weight) {
+        if (!SearchVertex(vertexName1) || !SearchVertex(vertexName2)) {
+            return;
+        }
+        for (auto& edge : graph.Get(vertexName1).GetEdges()) {
+            if (edge.GetLast() == vertexName2) {
+                edge.GetWeight() = weight;
             }
         }
-        throw std::runtime_error("Vertex not found");
+    }
+
+    void ChangeWeightEdge(T vertexName1, T vertexName2, int weight) {
+        ChangeWeightArc(vertexName1, vertexName2, weight);
+        ChangeWeightArc(vertexName2, vertexName1, weight);
+    }
+
+Path<T> Dijkstra(T startVertex, T endVertex) {
+    if (!SearchVertex(startVertex) || !SearchVertex(endVertex)) {
+        throw std::runtime_error("Start or end vertex not found");
+    }
+
+    // Получаем количество вершин в графе
+    int numVertices = graph.GetLength();
+
+    // Создаем структуры для расстояний, предыдущих вершин и посещенных вершин
+    IDictionary<T, int> dist;
+    IDictionary<T, T> prev;
+    IDictionary<T, bool> visited;
+
+    // Инициализация всех вершин как "бесконечность", для предыдущих вершин устанавливаем T()
+    for (const auto& keyValue : graph) {
+        dist.Add(keyValue.first, INT_MAX);
+        prev.Add(keyValue.first, T());
+        visited.Add(keyValue.first, false);
+    }
+
+    // Начальная вершина
+    dist.Get(startVertex) = 0;
+
+    // Основной цикл алгоритма Дейкстры
+    for (int i = 0; i < numVertices; ++i) {
+        T u;
+        int minDist = INT_MAX;
+
+        // Находим вершину с минимальной дистанцией
+        for (const auto& keyValue : dist) {
+            T vertex = keyValue.first;
+            if (!visited.Get(vertex) && keyValue.second < minDist) {
+                minDist = keyValue.second;
+                u = vertex;
+            }
+        }
+
+        if (minDist == INT_MAX) {
+            break; // Если все вершины посещены или достижимы
+        }
+
+        visited.Get(u) = true;
+
+        // Обновляем соседей вершины u
+        for (const auto& edge : graph.Get(u).GetEdges()) {
+            T v = edge.GetLast(); // Получаем соседнюю вершину
+            int weight = edge.GetWeight();
+
+            // Если нашли более короткий путь
+            if (dist.Get(u) + weight < dist.Get(v)) {
+                dist.Get(v) = dist.Get(u) + weight;
+                prev.Get(v) = u;
+            }
+        }
+    }
+
+    // Строим путь, начиная с конечной вершины
+    T current = endVertex;
+    DynamicArray<T> path;
+
+    if (dist.Get(endVertex) == INT_MAX) {
+        // Путь не найден, возвращаем пустой путь
+        return Path<T>(DynamicArray<int>{}, DynamicArray<T>{});
+    }
+
+    // Строим путь, начиная с конечной вершины
+    while (current != T()) {
+        path.push_back(current);
+        current = prev.Get(current);
+    }
+
+    std::reverse(path.begin(), path.end());
+
+    // Заполняем массив расстояний
+    DynamicArray<int> distArr;
+    distArr.push_back(dist.Get(endVertex)); // Дистанция до конечной вершины
+
+    // Возвращаем путь и расстояние
+    return Path<T>(distArr, path);
+}
+
+
+
+
+  Path<T> DFS(T startVertex, T endVertex) {
+    if (!SearchVertex(startVertex) || !SearchVertex(endVertex)) {
+        throw std::runtime_error("Start or end vertex not found");
+    }
+
+    DynamicArray<T> path;
+    int totalWeight = 0;  // Переменная для накопления суммы весов рёбер
+    IDictionary<T, bool> visited;
+    IDictionary<T, T> parent;
+    IDictionary<T, int> edgeWeight;  // Словарь для хранения веса рёбер между вершинами
+
+    // Инициализация всех вершин как невизитированных
+    for (const auto& keyValue : graph) {
+        visited.Add(keyValue.first, false);
+        parent.Add(keyValue.first, T());
+        edgeWeight.Add(keyValue.first, -1);  // Начальный вес рёбер не определен
+    }
+
+    std::stack<T> stack;
+    stack.push(startVertex);
+    visited.Get(startVertex) = true;
+
+    bool found = false;  // Флаг для отслеживания, найден ли путь
+
+    while (!stack.empty()) {
+        T current = stack.top();
+        stack.pop();
+
+        // Если достигли целевой вершины, восстанавливаем путь
+        if (current == endVertex) {
+            found = true;
+            break;
+        }
+
+        // Проходим по соседям текущей вершины
+        for (const auto& edge : graph.Get(current).GetEdges()) {
+            T neighbor = edge.GetLast();
+            int weight = edge.GetWeight();
+            if (!visited.Get(neighbor)) {
+                visited.Get(neighbor) = true;
+                parent.Get(neighbor) = current;
+                edgeWeight.Get(neighbor) = weight;  // Запоминаем вес рёбера
+                stack.push(neighbor);
+            }
+        }
+    }
+
+    // Если путь найден, восстанавливаем его
+    if (found) {
+        T v = endVertex;
+        while (v != startVertex && v != T()) {
+            path.push_back(v);
+            totalWeight += edgeWeight.Get(v);  // Накопливаем вес рёбер
+            v = parent.Get(v);
+        }
+        path.push_back(startVertex);  // Добавляем начальную вершину в путь
+        std::reverse(path.begin(), path.end());  // Переворачиваем путь, чтобы он был от startVertex до endVertex
+    }
+
+    // Возвращаем массив с одной величиной — общей длиной пути (сумма весов рёбер)
+    return Path<T>(DynamicArray<int>{totalWeight}, path);
+}
+
+
+
+    void topologicalSort(DynamicArray<T>& result) {
+        if (this->hasCycle()) {
+            return;
+        }
+
+        std::stack<T> stack;
+        IDictionary<T, bool> visited;
+
+        for (const auto& keyValue : graph) {
+            visited.Add(keyValue.first, false);
+        }
+
+        for (const auto& keyValue : graph) {
+            if (!visited.Get(keyValue.first)) {
+                topologicalSortUtil(keyValue.first, visited, stack);
+            }
+        }
+
+        while (!stack.empty()) {
+            result.push_back(stack.top());
+            stack.pop();
+        }
+    }
+
+    bool hasCycle() {
+        IDictionary<T, bool> visited;
+        IDictionary<T, bool> recStack;
+
+        for (const auto& keyValue : graph) {
+            visited.Add(keyValue.first, false);
+            recStack.Add(keyValue.first, false);
+        }
+
+        for (const auto& keyValue : graph) {
+            if (hasCycleUtil(keyValue.first, visited, recStack)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Vertex<T>& Get(T vertexName) {
+        if (!SearchVertex(vertexName)) {
+            throw std::runtime_error("Vertex not found");
+        }
+        return graph.Get(vertexName);
+    }
+
+    const Vertex<T>& Get(T vertexName) const {
+        if (!SearchVertex(vertexName)) {
+            throw std::runtime_error("Vertex not found");
+        }
+        return graph.Get(vertexName);
     }
 
 private:
-    void topologicalSortUtil(int vertex, DynamicArray<bool>& visited, std::stack<int>& Stack) {
-        visited[vertex] = true;
-        for (const auto& it : graph[vertex].GetEdges()) {
-            if (!visited[it.GetLast()]) {
-                topologicalSortUtil(it.GetLast(), visited, Stack);
+    void topologicalSortUtil(T vertex, IDictionary<T, bool>& visited, std::stack<T>& stack) {
+        visited.Get(vertex) = true;
+
+        for (const auto& edge : graph.Get(vertex).GetEdges()) {
+            T neighbor = edge.GetLast();
+            if (!visited.Get(neighbor)) {
+                topologicalSortUtil(neighbor, visited, stack);
             }
         }
-        Stack.push(vertex);
+
+        stack.push(vertex);
     }
 
-    bool hasCycleUtil(int v, DynamicArray<bool>& visited, DynamicArray<bool>& recStack) {
-        if (!visited[v]) {
-            visited[v] = true;
-            recStack[v] = true;
-            for (const auto& edge : graph[v].GetEdges()) {
-                int neighbor = edge.GetLast();
-                if (!visited[neighbor] && hasCycleUtil(neighbor, visited, recStack)) {
+    bool hasCycleUtil(T vertex, IDictionary<T, bool>& visited, IDictionary<T, bool>& recStack) {
+        if (!visited.Get(vertex)) {
+            visited.Get(vertex) = true;
+            recStack.Get(vertex) = true;
+
+            for (const auto& edge : graph.Get(vertex).GetEdges()) {
+                T neighbor = edge.GetLast();
+                if (!visited.Get(neighbor) && hasCycleUtil(neighbor, visited, recStack)) {
                     return true;
-                } else if (recStack[neighbor]) {
+                } else if (recStack.Get(neighbor)) {
                     return true;
                 }
             }
         }
-        recStack[v] = false;
+
+        recStack.Get(vertex) = false;
         return false;
     }
 };

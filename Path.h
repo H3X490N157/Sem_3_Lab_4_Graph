@@ -15,7 +15,7 @@ private:
 public:
     Path() = default;
 
-    Path(const DynamicArray<int>& d, DynamicArray<T>& p)
+    Path(const DynamicArray<int>& d, const DynamicArray<T>& p)
         : distances(d), path(p) {}
     
     DynamicArray<int> GetDistances(){

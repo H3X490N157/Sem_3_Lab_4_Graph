@@ -8,55 +8,54 @@
 #include <algorithm>
 #include <map>
 #include "String_Sequence.h"
-//легаси от 3 проекта
-///пофиксить со словарём, больше своих структур и пример на 1К вершин
+#include "DynamicArray.h" 
 
 template <typename Key, typename Value>
 class IDictionary {
 private:
-    std::vector<std::pair<Key, Value>> items;
+    DynamicArray<std::pair<Key, Value>> items;  
     
-
 public:
-    std::pair<Key, Value>& GetFirst()   {
-        if (items.empty()) throw std::out_of_range("Пусто");
-        return items.front();
+    std::pair<Key, Value>& GetFirst() {
+        if (items.is_empty()) throw std::out_of_range("Пусто");
+        return items[0];
     }
 
-    std::pair<Key, Value>& GetLast()   {
-        if (items.empty()) throw std::out_of_range("Пусто");
-        return items.back();
+    std::pair<Key, Value>& GetLast() {
+        if (items.is_empty()) throw std::out_of_range("Пусто");
+        return items[items.get_size() - 1];
     }
 
-    std::pair<Key, Value>& Get(int index) const   {
-        if (index < 0 || index >= items.size()) throw std::out_of_range("Ошибка");
+    std::pair<Key, Value>& Get(int index) const {
+        if (index < 0 || index >= items.get_size()) throw std::out_of_range("Ошибка");
         return const_cast<std::pair<Key, Value>&>(items[index]);
     }
 
-    std::pair<Key, Value>& operator[](int index)   {
+    std::pair<Key, Value>& operator[](int index) {
         return Get(index);
     }
-    
-    const std::pair<Key, Value>& operator[](int index) const {
-        if (index < 0 || index >= items.size()) throw std::out_of_range("Ошибка");
-        return items[index];
-        }
 
-    int GetLength() const   {
-        return items.size();
+    const std::pair<Key, Value>& operator[](int index) const {
+        if (index < 0 || index >= items.get_size()) throw std::out_of_range("Ошибка");
+        return items[index];
     }
 
-    void Append(std::pair<Key, Value> item)   {
+    int GetLength() const {
+        return items.get_size();
+    }
+
+    void Append(std::pair<Key, Value> item) {
         Add(item.first, item.second);
     }
 
-    void Prepend(std::pair<Key, Value> item)   {
-        items.insert(items.begin(), item);
+    void Prepend(std::pair<Key, Value> item) {
+        items.push_front(item);
     }
 
-    void InsertAt(std::pair<Key, Value> item, int index)   {
-        if (index < 0 || index > items.size()) throw std::out_of_range("Ошибка");
-        items.insert(items.begin() + index, item);
+    void InsertAt(std::pair<Key, Value> item, int index) {
+        if (index < 0 || index > items.get_size()) throw std::out_of_range("Ошибка");
+        auto it = items.begin() + index;
+        items.insert(it, item);
     }
 
     void Add(const Key& key, const Value& value) {
@@ -66,7 +65,7 @@ public:
                 return;
             }
         }
-        items.emplace_back(key, value);
+        items.push_back({key, value});
     }
 
     Value& Get(const Key& key) {
@@ -88,16 +87,16 @@ public:
     }
 
     void Remove(const Key& key) {
-        items.erase(std::remove_if(items.begin(), items.end(),
-                                   [&key](const std::pair<Key, Value>& item) { return item.first == key; }),
-                    items.end());
+        auto it = std::remove_if(items.begin(), items.end(),
+                                 [&key](const std::pair<Key, Value>& item) { return item.first == key; });
+        items.erase(it, items.end());
     }
 
-    auto begin() { return data.begin(); }
-    auto end() { return data.end(); }
+    auto begin() { return items.begin(); }
+    auto end() { return items.end(); }
 
-    auto begin() const { return data.begin(); }
-    auto end() const { return data.end(); }
+    auto begin() const { return items.cbegin(); }
+    auto end() const { return items.cend(); }
 };
 
 #endif // IDICTIONARY_H

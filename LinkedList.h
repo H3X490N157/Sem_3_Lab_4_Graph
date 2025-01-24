@@ -10,7 +10,6 @@ public:
         Node(const T& data) : data(data), next(nullptr) {}
     };
 
-    // Yet another ущербный итератор
     class Iterator {
     public:
         Iterator(Node* node) : current(node) {}
