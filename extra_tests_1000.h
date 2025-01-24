@@ -7,9 +7,9 @@
 void TestDFSvsDijkstra() {
     Graph<int> graph;
 
-    const int numVertices = 1000;  // Количество вершин
-    const int numEdges = 5000;     // Количество рёбер
-    const int maxWeight = 100;     // Максимальный вес рёбер
+    const int numVertices = 1000; 
+    const int numEdges = 5000;    
+    const int maxWeight = 100;     
     const float tagTwoProbability = 0.05f; // Вероятность тэга 2
 
     std::mt19937 rng(std::random_device{}());  // Генератор случайных чисел
@@ -45,7 +45,7 @@ void TestDFSvsDijkstra() {
 
     // Определение начальной и конечной вершин
     int startVertex = verticesWithTagTwo[0];
-    int endVertex = numVertices - 1;      
+    int endVertex = verticesWithTagTwo[verticesWithTagTwo.size() - 1];      
 
     std::cout << "Сравнение алгоритмов DFS и Dijkstra:\n";
 

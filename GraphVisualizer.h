@@ -8,7 +8,7 @@
 
 
 template<typename T>
-void DrawGraph(const Graph<T>& graph) {
+void DrawGraph(Graph<T>& graph) {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Визуализатор");
     window.setFramerateLimit(60);
 
@@ -16,9 +16,14 @@ void DrawGraph(const Graph<T>& graph) {
     float radius = 20.f;
     int graphSize = graph.GetSize();
 
+    if (graphSize == 0) {
+        std::cerr << "Граф пуст!" << std::endl;
+        return;
+    }
+
     float angleStep = 2 * M_PI / graphSize;
     for (int i = 0; i < graphSize; ++i) {
-        T vertexName = graph.Get(i).GetName(); 
+        T vertexName = graph.Get(i).GetName();
         float angle = i * angleStep;
         float x = 400 + std::cos(angle) * 200;
         float y = 300 + std::sin(angle) * 200;
@@ -27,8 +32,14 @@ void DrawGraph(const Graph<T>& graph) {
 
     sf::Font font;
     if (!font.loadFromFile("arial.ttf")) {
-        throw std::runtime_error("Font not found!");
+        std::cerr << "Ошибка: шрифт arial.ttf не найден!" << std::endl;
+        return;
     }
+
+    sf::Text text;
+    text.setFont(font);
+    text.setCharacterSize(16);
+    text.setFillColor(sf::Color::White);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -41,13 +52,16 @@ void DrawGraph(const Graph<T>& graph) {
 
         // Рисуем рёбра
         for (int i = 0; i < graphSize; ++i) {
-            T vertexName = graph.Get(i).GetName();
-            const auto edges = graph.Get(vertexName).GetEdges();
+            const auto& vertex = graph.Get(i);
+            const auto& edges = vertex.GetEdges();
 
             for (const auto& edge : edges) {
                 T src = edge.GetFirst();
                 T dest = edge.GetLast();
-                int weight = edge.GetWeight(); 
+
+                if (positions.find(src) == positions.end() || positions.find(dest) == positions.end()) {
+                    continue;
+                }
 
                 sf::Vertex line[] = {
                     sf::Vertex(positions[src], sf::Color::Black),
@@ -55,29 +69,26 @@ void DrawGraph(const Graph<T>& graph) {
                 };
                 window.draw(line, 2, sf::Lines);
 
-                sf::Vector2f midPoint = (positions[src] + positions[dest] + (positions[dest] / 7.0f)) / 2.0f;
+                sf::Vector2f midPoint = (positions[src] + positions[dest]) / 2.0f;
 
                 sf::Text weightText;
                 weightText.setFont(font);
-                weightText.setString(std::to_string(weight)); 
+                weightText.setString(std::to_string(edge.GetWeight()));
                 weightText.setCharacterSize(14);
                 weightText.setFillColor(sf::Color::Black);
-                weightText.setPosition(midPoint.x - 10, midPoint.y - 10); 
+                weightText.setPosition(midPoint.x - 10, midPoint.y - 10);
 
                 window.draw(weightText);
             }
         }
 
+        // Рисуем вершины
+        sf::CircleShape circle(radius);
         for (const auto& [name, position] : positions) {
-            sf::CircleShape circle(radius);
             circle.setPosition(position.x - radius, position.y - radius);
             circle.setFillColor(sf::Color::Blue);
 
-            sf::Text text;
-            text.setFont(font);
             text.setString(std::to_string(name));
-            text.setCharacterSize(16);
-            text.setFillColor(sf::Color::White);
             text.setPosition(position.x - radius / 2, position.y - radius / 2);
 
             window.draw(circle);
@@ -88,8 +99,9 @@ void DrawGraph(const Graph<T>& graph) {
     }
 }
 
+
 template<typename T>
-void Draw_Graph_1000(const Graph<T>& graph) {
+void Draw_Graph_1000(Graph<T>& graph) {
     const int windowWidth = 800;
     const int windowHeight = 600;
     const int pointSize = 2; 

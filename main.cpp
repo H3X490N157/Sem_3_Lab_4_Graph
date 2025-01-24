@@ -41,7 +41,6 @@ int main() {
         std::cout << "Рисуем граф...\n";
         DrawGraph(graph);
         
-        // Выполняем топологическую сортировку
         DynamicArray<int> result;
         graph.topologicalSort(result);
         output << "Топологическая сортировка:\n";

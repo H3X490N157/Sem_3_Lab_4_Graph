@@ -1,5 +1,5 @@
 #pragma once
-#include <list>
+#include "LinkedList.h"
 
 //в дугах косвенное обраение посредством имён. Можно было бы, если бы в графе вершины были в словаре. Избавиться от косвенной адресации, если получится. Впиндюрить словарик в граф
 template<typename T>
@@ -33,29 +33,29 @@ public:
     }
 };
 
-template<typename T>
+template <typename T>
 class Vertex {
 private:
     T name;
-    std::list<Edge<T>> edges;
+    LinkedList<Edge<T>> edges; // Используем ваш LinkedList вместо std::list
 
 public:
-    Vertex() : name(), edges() {};
-    
-    Vertex(T name) : name(name) {};
-    
-    const std::list<Edge<T>> &GetEdges() const{
+    Vertex() : name(), edges() {}
+
+    Vertex(T name) : name(name), edges() {}
+
+    // Получение ссылок на рёбра
+    const LinkedList<Edge<T>>& GetEdges() const {
         return edges;
     }
-    
-    T GetName() const{
+
+    T GetName() const {
         return name;
     }
-    
-    void AddEdgeV(const Edge<T> &edge){
+
+    // Добавление нового ребра
+    void AddEdgeV(const Edge<T>& edge) {
         edges.push_back(edge);
     }
-
 };
-
 

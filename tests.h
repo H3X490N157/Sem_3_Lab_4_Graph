@@ -12,7 +12,6 @@ void TestTopologicalSort(std::ofstream& output) {
     graph1.AddArc(1, 2, 1);
     graph1.AddArc(2, 3, 1);
     DrawGraph(graph1);
-
     DynamicArray<int> result1;
     graph1.topologicalSort(result1);
     assert(result1.get_size() == 4);
